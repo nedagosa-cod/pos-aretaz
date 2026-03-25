@@ -1,121 +1,244 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
-function App() {
-  const [count, setCount] = useState(0)
+type Arepa = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+};
+
+type Order = {
+  id: number;
+  items: Arepa[];
+  total: number;
+};
+
+const arepasData: Arepa[] = [
+  { id: "1", name: "La Pelúa", description: "Carne mechada y queso amarillo.", price: 14000, category: "Tradicionales" },
+  { id: "2", name: "Reina Pepiada", description: "Pollo, aguacate y mayonesa.", price: 15000, category: "Tradicionales" },
+  { id: "3", name: "Dominó", description: "Caraotas negras y queso blanco rallado.", price: 11000, category: "Clásicas" },
+  { id: "4", name: "Catira", description: "Pollo mechado y queso amarillo.", price: 14000, category: "Tradicionales" },
+  { id: "5", name: "Pabellón", description: "Carne, caraotas, tajadas y queso blanco.", price: 15000, category: "Especiales" },
+  { id: "6", name: "Sifrina", description: "Reina pepiada con abundante queso amarillo.", price: 14500, category: "Especiales" },
+  { id: "7", name: "Llanera", description: "Carne asada, tomate, aguacate y queso guayanés.", price: 15000, category: "Especiales" },
+  { id: "8", name: "Perico", description: "Revoltillo de huevos con tomate y cebolla.", price: 10000, category: "Clásicas" },
+  { id: "9", name: "Rumbera", description: "Pernil horneado y queso amarillo.", price: 14500, category: "Tradicionales" },
+  { id: "10", name: "Viuda", description: "Arepa sola, recién asada y calientita.", price: 9000, category: "Clásicas" },
+];
+
+export default function App() {
+  const [currentSelection, setCurrentSelection] = useState<Arepa[]>([]);
+  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+  const [selectedActiveOrder, setSelectedActiveOrder] = useState<Order | null>(null);
+  const [orderCounter, setOrderCounter] = useState(1);
+  const [amountReceived, setAmountReceived] = useState("");
+
+  const categories = Array.from(new Set(arepasData.map(a => a.category)));
+
+  const addToSelection = (arepa: Arepa) => {
+    setCurrentSelection([...currentSelection, arepa]);
+  };
+
+  const removeFromSelection = (indexToRemove: number) => {
+    setCurrentSelection(currentSelection.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const activeTotal = currentSelection.reduce((sum, item) => sum + item.price, 0);
+
+  const handleCreateOrder = () => {
+    if (currentSelection.length === 0) return;
+    const newOrder: Order = {
+      id: orderCounter,
+      items: [...currentSelection],
+      total: activeTotal
+    };
+
+    setActiveOrders([...activeOrders, newOrder]);
+    setCurrentSelection([]);
+    setOrderCounter(orderCounter + 1);
+  };
+
+  const openOrderPayment = (order: Order) => {
+    setSelectedActiveOrder(order);
+    setAmountReceived("");
+  };
+
+  const completeOrder = () => {
+    if (!selectedActiveOrder) return;
+    setActiveOrders(activeOrders.filter(o => o.id !== selectedActiveOrder.id));
+    setSelectedActiveOrder(null);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="flex justify-center h-screen max-h-screen bg-stone-100 text-neutral-800 font-sans selection:bg-brand-secondary/30 overflow-hidden">
+      <div className="w-full max-w-md bg-white shadow-2xl flex flex-col relative border-x border-neutral-200/60">
+        
+        {/* Navbar */}
+        <header className="z-20 bg-white border-b border-brand-tertiary px-6 py-4 flex flex-none items-center justify-between">
+          <div>
+            <h1 className="text-xl font-black tracking-tight text-brand-primary">
+              AretazCash
+            </h1>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-brand-tertiary/40 border border-brand-tertiary flex items-center justify-center shadow-sm">
+             <span className="text-xs font-bold text-brand-primary tracking-wider">AC</span>
+          </div>
+        </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Top Section: Active Orders (Etiquetas de los pedidos) */}
+        <div className="bg-stone-50 border-b border-neutral-200 px-4 pt-2 pb-3 min-h-[90px] flex-none flex flex-col justify-end shadow-inner">
+          {activeOrders.length > 0 ? (
+            <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+              {activeOrders.map((order) => (
+                <div 
+                  key={order.id} 
+                  className="relative flex-none w-[64px] h-[75px] bg-gradient-to-b from-brand-secondary/20 to-white border-x border-t border-brand-secondary/30 flex flex-col items-center justify-start pt-2 cursor-pointer group shadow-sm hover:from-brand-secondary/30 hover:to-brand-secondary/5 transition-all animate-in zoom-in-90 duration-300"
+                  style={{
+                    clipPath: "polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)"
+                  }}
+                  onClick={() => openOrderPayment(order)}
+                  title={`Ver y cobrar Pedido #${order.id}`}
+                >
+                  <span className="text-[11px] font-bold text-brand-primary text-center leading-none px-1 uppercase">
+                    P#{order.id}
+                  </span>
+                  <span className="text-[9px] text-neutral-600 font-bold mt-1 font-mono">
+                    {order.items.length} arp
+                  </span>
+                </div>
+              ))}
+              <div className="min-w-[4px] h-full"></div>
+            </div>
+          ) : (
+            <div className="h-[75px] flex items-center justify-center border-2 border-dashed border-brand-tertiary/60 rounded-lg bg-white">
+              <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Sin Pedidos Activos</span>
+            </div>
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Middle Section: Scrollable Arepas List */}
+        <main className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-hide bg-white">
+           {categories.map(category => (
+             <section key={category} className="space-y-4">
+                <h2 className="text-brand-secondary font-black text-sm tracking-wide border-b border-brand-tertiary/70 pb-1 uppercase">{category}</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {arepasData.filter(a => a.category === category).map((item) => (
+                    <Card 
+                      key={item.id} 
+                      className="bg-white border-brand-tertiary/80 hover:border-brand-primary/40 hover:bg-brand-primary/5 shadow-sm transition-all flex flex-col cursor-pointer active:scale-95" 
+                      onClick={() => addToSelection(item)}
+                    >
+                      <div className="p-3 pb-1 flex justify-between items-start gap-2">
+                        <span className="text-sm text-neutral-800 font-bold leading-tight">{item.name}</span>
+                        <span className="text-sm font-black text-brand-secondary shrink-0">${item.price.toLocaleString("es-CO")}</span>
+                      </div>
+                      <div className="px-3 pb-3 mt-auto">
+                        <span className="text-[10px] text-neutral-500 line-clamp-2 leading-tight font-medium">{item.description}</span>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+             </section>
+           ))}
+        </main>
+
+        {/* Bottom Section: Current Selection & Create Order (Always Visible) */}
+        <div className="flex-none bg-white border-t border-brand-tertiary/60 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+          {/* Selected Arepas List */}
+          {currentSelection.length > 0 && (
+            <div className="px-5 py-3 border-b border-neutral-100 bg-stone-50/80 flex gap-2 overflow-x-auto scrollbar-hide">
+              {currentSelection.map((item, idx) => (
+                <div key={idx} className="flex-none bg-white border border-brand-tertiary rounded-lg py-1.5 px-3 flex items-center gap-2 animate-in slide-in-from-right-2 shadow-sm">
+                  <span className="text-xs font-bold text-neutral-700 whitespace-nowrap">{item.name}</span>
+                  <button 
+                    onClick={() => removeFromSelection(idx)} 
+                    className="text-brand-primary hover:text-red-500 text-xs font-bold leading-none p-1 -mr-1 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Subtotal and Checkout Button */}
+          <div className="px-5 py-4 pb-safe flex items-center justify-between bg-white">
+            <div className="flex flex-col">
+              <span className="text-[11px] text-neutral-500 font-bold tracking-wide uppercase">
+                {currentSelection.length} {currentSelection.length === 1 ? 'arepa' : 'arepas'}
+              </span>
+              <span className="text-xl font-black text-brand-primary leading-none mt-0.5">${activeTotal.toLocaleString("es-CO")}</span>
+            </div>
+            <Button 
+              onClick={handleCreateOrder}
+              disabled={currentSelection.length === 0}
+              className="bg-brand-primary hover:bg-[#a3383c] text-white rounded-xl shadow-[0_4px_14px_0_rgba(186,65,70,0.25)] text-sm h-11 px-6 font-bold border-none transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none"
+            >
+              Crear Pedido
+            </Button>
+          </div>
+        </div>
+        
+        {/* Payment & Delivery Modal (Popup sobre etiqueta) */}
+        {selectedActiveOrder && (
+          <div className="absolute inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm flex items-end justify-center">
+            <div className="bg-white w-full max-h-[85vh] rounded-t-3xl border-t border-neutral-200 p-6 flex flex-col gap-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-full duration-300">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-black tracking-tight text-neutral-900">Pedido <span className="text-brand-primary">#{selectedActiveOrder.id}</span></h2>
+                <button onClick={() => setSelectedActiveOrder(null)} className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-neutral-500 hover:text-neutral-900 hover:bg-stone-200 transition-colors font-bold">✕</button>
+              </div>
+
+              {/* Order List */}
+              <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2 scrollbar-hide">
+                {selectedActiveOrder.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center border-b border-neutral-100 pb-2">
+                    <span className="text-neutral-700 text-sm font-bold">{item.name}</span>
+                    <span className="text-brand-secondary font-bold text-sm">${item.price.toLocaleString("es-CO")}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t border-brand-tertiary">
+                <span className="text-neutral-900 font-black text-lg">Total a Pagar</span>
+                <span className="text-2xl text-brand-primary font-black">${selectedActiveOrder.total.toLocaleString("es-CO")}</span>
+              </div>
+
+              {/* Payment Calculator */}
+              <div className="space-y-4 bg-stone-50 p-4 rounded-xl border border-brand-tertiary shadow-inner">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-neutral-600">Efectivo Recibido ($)</label>
+                  <input 
+                    type="number" 
+                    value={amountReceived}
+                    onChange={(e) => setAmountReceived(e.target.value)}
+                    placeholder="Ej. 50000"
+                    className="w-full bg-white border border-brand-tertiary rounded-lg px-4 py-3 text-neutral-900 text-lg font-black outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all shadow-sm"
+                  />
+                </div>
+                
+                <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-brand-tertiary shadow-sm">
+                  <span className="text-sm font-bold text-neutral-600">Vueltas (Cambio):</span>
+                  <span className={`text-xl font-black ${parseFloat(amountReceived || "0") >= selectedActiveOrder.total ? "text-green-600" : "text-brand-primary"}`}>
+                    ${Math.max(0, parseFloat(amountReceived || "0") - selectedActiveOrder.total).toLocaleString("es-CO")}
+                  </span>
+                </div>
+              </div>
+
+              <Button 
+                onClick={completeOrder}
+                disabled={parseFloat(amountReceived || "0") < selectedActiveOrder.total}
+                className="w-full bg-brand-primary hover:bg-[#a3383c] text-white rounded-xl shadow-[0_4px_14px_0_rgba(186,65,70,0.3)] text-base h-12 font-bold border-none transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none mt-2"
+              >
+                Pedido Entregado
+              </Button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
 }
-
-export default App
