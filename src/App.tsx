@@ -46,6 +46,7 @@ export default function App() {
           setAmountReceived={actions.setAmountReceived} 
           setSelectedActiveOrder={actions.setSelectedActiveOrder} 
           completeOrder={actions.completeOrder} 
+          cancelOrder={actions.cancelOrder}
         />
 
         <CustomerNameModal 

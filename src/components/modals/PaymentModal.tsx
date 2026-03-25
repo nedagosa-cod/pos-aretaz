@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import type { Order } from "../../types";
 
 type Props = {
@@ -7,9 +8,10 @@ type Props = {
   setAmountReceived: (val: string) => void;
   setSelectedActiveOrder: (order: Order | null) => void;
   completeOrder: () => void;
+  cancelOrder: () => void;
 };
 
-export function PaymentModal({ selectedActiveOrder, amountReceived, setAmountReceived, setSelectedActiveOrder, completeOrder }: Props) {
+export function PaymentModal({ selectedActiveOrder, amountReceived, setAmountReceived, setSelectedActiveOrder, completeOrder, cancelOrder }: Props) {
   if (!selectedActiveOrder) return null;
 
   return (
@@ -56,13 +58,23 @@ export function PaymentModal({ selectedActiveOrder, amountReceived, setAmountRec
           </div>
         </div>
 
-        <Button
-          onClick={completeOrder}
-          disabled={parseFloat(amountReceived || "0") < selectedActiveOrder.total}
-          className="w-full bg-brand-primary hover:bg-[#a3383c] text-white rounded-xl shadow-[0_4px_14px_0_rgba(186,65,70,0.3)] text-base h-12 font-bold border-none transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none mt-2"
-        >
-          Pedido Entregado
-        </Button>
+        <div className="flex gap-3 mt-2">
+          <Button
+            onClick={cancelOrder}
+            variant="outline"
+            className="w-1/3 bg-transparent text-neutral-400 hover:text-red-600 hover:bg-red-50 border-neutral-200 rounded-xl font-bold h-12 transition-all flex items-center justify-center gap-1.5"
+          >
+            <Trash2 className="w-4 h-4 mb-0.5" />
+            Eliminar
+          </Button>
+          <Button
+            onClick={completeOrder}
+            disabled={parseFloat(amountReceived || "0") < selectedActiveOrder.total}
+            className="w-2/3 bg-brand-primary hover:bg-[#a3383c] text-white rounded-xl shadow-[0_4px_14px_0_rgba(186,65,70,0.3)] text-base h-12 font-bold border-none transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none"
+          >
+            Entregar
+          </Button>
+        </div>
       </div>
     </div>
   );

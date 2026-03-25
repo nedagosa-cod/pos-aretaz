@@ -70,6 +70,14 @@ export function usePOS() {
 
   const completeOrder = () => {
     if (!selectedActiveOrder) return;
+    // Logica futura para marcar como entregado en DB
+    setActiveOrders(prev => prev.filter(o => o.id !== selectedActiveOrder.id));
+    setSelectedActiveOrder(null);
+  };
+
+  const cancelOrder = () => {
+    if (!selectedActiveOrder) return;
+    // Logica futura para eliminar de DB
     setActiveOrders(prev => prev.filter(o => o.id !== selectedActiveOrder.id));
     setSelectedActiveOrder(null);
   };
@@ -102,7 +110,8 @@ export function usePOS() {
       handleCreateOrderClick,
       finalizeCreateOrder,
       openOrderPayment,
-      completeOrder
+      completeOrder,
+      cancelOrder
     }
   };
 }
