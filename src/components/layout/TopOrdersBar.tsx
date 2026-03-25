@@ -43,7 +43,7 @@ export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment }: Pr
       <div className="absolute top-3 left-4">
         <h1 className="text-white/90 font-black tracking-tighter text-lg leading-none">Aretaz</h1>
       </div>
-      <button 
+      <button
         onClick={toggleFullscreen}
         title="Pantalla Completa"
         className="absolute top-2.5 right-4 w-7 h-7 flex items-center justify-center rounded bg-white/10 text-white/90 hover:bg-white/25 transition-all text-sm font-bold shadow-sm active:scale-90"
@@ -51,12 +51,12 @@ export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment }: Pr
         {isFullscreen ? "🗗" : "⛶"}
       </button>
       {activeOrders.length > 0 ? (
-        <div className="flex overflow-x-auto gap-3 scrollbar-hide items-end mt-4">
+        <div className="flex overflow-x-auto gap-3 scrollbar-hide items-end mt-6">
           {activeOrders.map((order) => {
             const isLate = (currentTime - order.createdAt) > 600000;
             return (
-              <div 
-                key={order.id} 
+              <div
+                key={order.id}
                 className="relative flex-none w-[72px] h-[95px] bg-[#FFFbf5] border border-white/60 flex flex-col items-center justify-start pt-2 cursor-pointer group shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all animate-in zoom-in-90 duration-300"
                 style={{ clipPath: "polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%)" }}
                 onClick={() => openOrderPayment(order)}
@@ -77,7 +77,7 @@ export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment }: Pr
           <div className="min-w-[4px] h-full"></div>
         </div>
       ) : (
-        <div className="h-[85px] mt-4 flex items-center justify-center border-2 border-dashed border-white/30 rounded-xl bg-black/10">
+        <div className="h-[85px] mt-6 flex items-center justify-center border-2 border-dashed border-white/30 rounded-xl bg-black/10">
           <span className="text-xs text-white/70 font-bold uppercase tracking-widest px-4 text-center">Sin Pedidos Activos</span>
         </div>
       )}

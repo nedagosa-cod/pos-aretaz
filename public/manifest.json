@@ -1,0 +1,15 @@
+{
+  "name": "Aretaz Cash POS",
+  "short_name": "Aretaz",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#BA4146",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
