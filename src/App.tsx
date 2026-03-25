@@ -8,6 +8,7 @@ type Arepa = {
   description: string;
   price: number;
   category: string;
+  segment?: string;
 };
 
 type Order = {
@@ -42,6 +43,18 @@ const arepasData: Arepa[] = [
 
   // Especial
   { id: "13", name: "La Especial Aretaz", description: "Con Todo: Pollo, Carne, Cábano, Chorizo, Tocineta, Maíz, Jamón, Maduro.", price: 15000, category: "Especial" },
+
+  // --- Segmento: Bebidas ---
+  { id: "b1", name: "Coca-Cola", description: "Bebida gaseosa tradicional bien fría.", price: 4000, category: "Gaseosas", segment: "Bebidas" },
+  { id: "b2", name: "Manzana Postobón", description: "Bebida gaseosa sabor manzana.", price: 3500, category: "Gaseosas", segment: "Bebidas" },
+  { id: "b3", name: "Colombiana Postobón", description: "La nuestra, bebida gaseosa dulce.", price: 3500, category: "Gaseosas", segment: "Bebidas" },
+  { id: "b4", name: "Uva Postobón", description: "Bebida gaseosa sabor uva.", price: 3500, category: "Gaseosas", segment: "Bebidas" },
+
+  // --- Segmento: Fritos ---
+  { id: "f1", name: "Empanada Mixta", description: "Crujiente empanada rellena de pollo y carne.", price: 3500, category: "Empanadas", segment: "Fritos" },
+  { id: "f2", name: "Flauta Pollo Queso", description: "Rollo frito crujiente con pollo y doble queso.", price: 4500, category: "Flautas", segment: "Fritos" },
+  { id: "f3", name: "Flauta Hawaiana", description: "Rollo crujiente de jamón, queso y dulce de piña.", price: 4500, category: "Flautas", segment: "Fritos" },
+  { id: "f4", name: "Papa Rellena Tradicional", description: "Papa rellena al estilo costeño con carne.", price: 5000, category: "Papas Rellenas", segment: "Fritos" },
 ];
 
 export default function App() {
@@ -52,6 +65,16 @@ export default function App() {
   const [amountReceived, setAmountReceived] = useState("");
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState("Arepas");
+
+  const segments = [
+    { id: "Arepas", icon: "🫓" },
+    { id: "Bebidas", icon: "🥤" },
+    { id: "Fritos", icon: "🥟" }
+  ];
+
+  const segmentProducts = arepasData.filter((item: any) => (item.segment || "Arepas") === selectedSegment);
+  const categories = Array.from(new Set(segmentProducts.map((a: any) => a.category)));
 
   useEffect(() => {
     if (activeOrders.length === 0) return;
@@ -66,8 +89,6 @@ export default function App() {
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  const categories = Array.from(new Set(arepasData.map(a => a.category)));
 
   const addToSelection = (arepa: Arepa) => {
     setCurrentSelection([...currentSelection, arepa]);
@@ -108,20 +129,8 @@ export default function App() {
     <div className="flex justify-center h-screen max-h-screen bg-stone-100 text-neutral-800 font-sans selection:bg-brand-secondary/30 overflow-hidden">
       <div className="w-full max-w-md bg-white shadow-2xl flex flex-col relative border-x border-neutral-200/60">
 
-        {/* Navbar */}
-        <header className="z-20 bg-white border-b border-brand-tertiary px-6 py-4 flex flex-none items-center justify-between">
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-brand-primary">
-              AretazCash
-            </h1>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-brand-tertiary/40 border border-brand-tertiary flex items-center justify-center shadow-sm">
-            <span className="text-xs font-bold text-brand-primary tracking-wider">AC</span>
-          </div>
-        </header>
-
         {/* Top Section: Active Orders (Etiquetas de los pedidos) */}
-        <div className="bg-stone-50 border-b border-neutral-200 px-4 pt-2 pb-3 min-h-[105px] flex-none flex flex-col justify-end shadow-inner">
+        <div className="bg-stone-50 border-b border-neutral-200 px-4 pt-4 pb-3 min-h-[105px] flex-none flex flex-col justify-end shadow-inner relative z-20">
           {activeOrders.length > 0 ? (
             <div className="flex overflow-x-auto gap-2 scrollbar-hide items-end">
               {activeOrders.map((order) => {
@@ -157,12 +166,28 @@ export default function App() {
           )}
         </div>
 
+        {/* Banner Segment Switcher (Círculos) */}
+        <div className="bg-white border-b border-neutral-100 py-2.5 px-4 flex justify-center gap-6 overflow-x-auto scrollbar-hide shrink-0 shadow-sm z-10 w-full overflow-hidden">
+          {segments.map(seg => (
+            <button 
+              key={seg.id}
+              onClick={() => { setSelectedSegment(seg.id); setSelectedCategory(null); }}
+              className="flex items-center justify-center group transition-all"
+              title={seg.id}
+            >
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center text-2xl transition-all shadow-sm ${selectedSegment === seg.id ? "bg-brand-primary text-white scale-110 shadow-brand-primary/30 ring-2 ring-brand-primary/20 ring-offset-2" : "bg-stone-50 border border-brand-tertiary/60 text-neutral-500 group-hover:border-brand-primary/50 group-hover:text-brand-primary group-hover:bg-stone-50 group-hover:scale-105"}`}>
+                {seg.icon}
+              </div>
+            </button>
+          ))}
+        </div>
+
         {/* Middle Section: Scrollable Arepas List */}
         <main className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-hide bg-white">
           {selectedCategory ? (
             <section className="space-y-4 animate-in slide-in-from-right-4 duration-300 pb-4">
               <div className="flex items-center gap-3 border-b border-brand-tertiary/70 pb-3 sticky top-0 bg-white z-10 pt-1">
-                <button
+                <button 
                   onClick={() => setSelectedCategory(null)}
                   className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-neutral-600 hover:text-white hover:bg-brand-primary transition-all font-bold shadow-sm active:scale-90"
                 >
@@ -170,9 +195,9 @@ export default function App() {
                 </button>
                 <h2 className="text-brand-primary font-black text-lg tracking-wide uppercase">{selectedCategory}</h2>
               </div>
-
+              
               <div className="grid grid-cols-1 gap-4">
-                {arepasData.filter(a => a.category === selectedCategory).map((item) => (
+                {segmentProducts.filter((a: any) => a.category === selectedCategory).map((item: any) => (
                   <Card
                     key={item.id}
                     className="bg-white border-brand-tertiary/80 hover:border-brand-primary/40 hover:bg-brand-primary/5 shadow-md hover:shadow-lg transition-all flex flex-col cursor-pointer active:scale-95"
@@ -190,19 +215,20 @@ export default function App() {
               </div>
             </section>
           ) : (
-            categories.map(category => (
-              <section key={category} className="space-y-4 animate-in fade-in duration-300">
-                <h2
-                  className="text-brand-secondary font-black text-sm tracking-wide border-b border-brand-tertiary/70 pb-1 uppercase cursor-pointer hover:text-brand-primary transition-colors flex justify-between items-end group"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  <span>{category}</span>
-                  <span className="text-[11px] text-neutral-400 font-bold normal-case flex items-center gap-1 group-hover:text-brand-primary transition-colors">
-                    Ver todas <span className="text-[10px]">➔</span>
-                  </span>
-                </h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {arepasData.filter(a => a.category === category).map((item) => (
+           categories.length > 0 ? (
+             categories.map(category => (
+               <section key={category as string} className="space-y-4 animate-in fade-in duration-300">
+                  <h2 
+                    className="text-brand-secondary font-black text-sm tracking-wide border-b border-brand-tertiary/70 pb-1 uppercase cursor-pointer hover:text-brand-primary transition-colors flex justify-between items-end group"
+                    onClick={() => setSelectedCategory(category as string)}
+                  >
+                    <span>{category as string}</span>
+                    <span className="text-[11px] text-neutral-400 font-bold normal-case flex items-center gap-1 group-hover:text-brand-primary transition-colors">
+                      Ver todas <span className="text-[10px]">➔</span>
+                    </span>
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {segmentProducts.filter((a: any) => a.category === category).map((item: any) => (
                     <Card
                       key={item.id}
                       className="bg-white border-brand-tertiary/80 hover:border-brand-primary/40 hover:bg-brand-primary/5 shadow-sm transition-all flex flex-col cursor-pointer active:scale-95"
@@ -212,14 +238,20 @@ export default function App() {
                         <span className="text-sm text-neutral-800 font-bold leading-tight">{item.name}</span>
                         <span className="text-sm font-black text-brand-secondary shrink-0">${item.price.toLocaleString("es-CO")}</span>
                       </div>
-                      <div className="px-3 pb-3 mt-auto">
-                        <span className="text-[10px] text-neutral-500 line-clamp-2 leading-tight font-medium">{item.description}</span>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </section>
-            ))
+                        <div className="px-3 pb-3 mt-auto">
+                          <span className="text-[10px] text-neutral-500 line-clamp-2 leading-tight font-medium">{item.description}</span>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+               </section>
+             ))
+           ) : (
+             <div className="flex flex-col items-center justify-center p-10 text-center space-y-3 opacity-60">
+                <span className="text-4xl">😅</span>
+                <p className="text-sm font-bold text-neutral-500">Aún no hay productos en este segmento.</p>
+             </div>
+           )
           )}
         </main>
 
