@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { ClipboardList } from "lucide-react";
 import type { Order } from "../../types";
 
 type Props = {
   activeOrders: Order[];
   currentTime: number;
   openOrderPayment: (order: Order) => void;
+  openAllOrders: () => void;
 };
 
-export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment }: Props) {
+export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment, openAllOrders }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -43,13 +45,22 @@ export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment }: Pr
       <div className="absolute top-3 left-4">
         <h1 className="text-white/90 font-black tracking-tighter text-lg leading-none">Aretaz</h1>
       </div>
-      <button
-        onClick={toggleFullscreen}
-        title="Pantalla Completa"
-        className="absolute top-2.5 right-4 w-7 h-7 flex items-center justify-center rounded bg-white/10 text-white/90 hover:bg-white/25 transition-all text-sm font-bold shadow-sm active:scale-90"
-      >
-        {isFullscreen ? "🗗" : "⛶"}
-      </button>
+      <div className="absolute top-2.5 right-4 flex gap-2">
+        <button 
+          onClick={openAllOrders}
+          title="Ver todos los pedidos en lista grande"
+          className="w-7 h-7 flex items-center justify-center rounded bg-white/10 text-white/90 hover:bg-white/25 transition-all shadow-sm active:scale-90"
+        >
+          <ClipboardList className="w-4 h-4" />
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          title="Pantalla Completa"
+          className="w-7 h-7 flex items-center justify-center rounded bg-white/10 text-white/90 hover:bg-white/25 transition-all text-sm font-bold shadow-sm active:scale-90"
+        >
+          {isFullscreen ? "🗗" : "⛶"}
+        </button>
+      </div>
       {activeOrders.length > 0 ? (
         <div className="flex overflow-x-auto gap-3 scrollbar-hide items-end mt-6">
           {activeOrders.map((order) => {

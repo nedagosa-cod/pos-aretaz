@@ -11,6 +11,7 @@ export function usePOS() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSegment, setSelectedSegment] = useState("Arepas");
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [isAllOrdersModalOpen, setIsAllOrdersModalOpen] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [amountReceived, setAmountReceived] = useState("");
 
@@ -92,6 +93,7 @@ export function usePOS() {
       selectedCategory,
       selectedSegment,
       isNameModalOpen,
+      isAllOrdersModalOpen,
       customerName,
       amountReceived,
       segmentProducts,
@@ -103,6 +105,7 @@ export function usePOS() {
       setSelectedSegment,
       setCustomerName,
       setIsNameModalOpen,
+      setIsAllOrdersModalOpen,
       setAmountReceived,
       setSelectedActiveOrder,
       addToSelection,

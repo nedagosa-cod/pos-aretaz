@@ -5,6 +5,7 @@ import { MenuGrid } from "./components/menu/MenuGrid";
 import { BottomActionCart } from "./components/cart/BottomActionCart";
 import { PaymentModal } from "./components/modals/PaymentModal";
 import { CustomerNameModal } from "./components/modals/CustomerNameModal";
+import { AllOrdersModal } from "./components/modals/AllOrdersModal";
 
 export default function App() {
   const { state, actions } = usePOS();
@@ -17,6 +18,7 @@ export default function App() {
           activeOrders={state.activeOrders} 
           currentTime={state.currentTime} 
           openOrderPayment={actions.openOrderPayment} 
+          openAllOrders={() => actions.setIsAllOrdersModalOpen(true)}
         />
 
         <SegmentSwitcher 
@@ -56,6 +58,14 @@ export default function App() {
           setCustomerName={actions.setCustomerName} 
           orderCounter={state.orderCounter} 
           finalizeCreateOrder={actions.finalizeCreateOrder} 
+        />
+
+        <AllOrdersModal
+          isOpen={state.isAllOrdersModalOpen}
+          setIsOpen={actions.setIsAllOrdersModalOpen}
+          activeOrders={state.activeOrders}
+          currentTime={state.currentTime}
+          openOrderPayment={actions.openOrderPayment}
         />
 
       </div>
