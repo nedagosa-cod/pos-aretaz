@@ -15,3 +15,12 @@ export type Order = {
   name?: string;
   paymentMethod?: string; // 'Efectivo' o 'Transferencia'
 };
+
+export type SaleRecord = {
+  id: string;
+  fecha: string;
+  cliente: string;
+  resumen: string;
+  total: number;
+  metodoPago: string;
+};

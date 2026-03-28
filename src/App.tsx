@@ -6,6 +6,7 @@ import { BottomActionCart } from "./components/cart/BottomActionCart";
 import { PaymentModal } from "./components/modals/PaymentModal";
 import { CustomerNameModal } from "./components/modals/CustomerNameModal";
 import { AllOrdersModal } from "./components/modals/AllOrdersModal";
+import { DashboardModal } from "./components/modals/DashboardModal";
 import { Loader2, AlertCircle } from "lucide-react";
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
               currentTime={state.currentTime} 
               openOrderPayment={actions.openOrderPayment} 
               openAllOrders={() => actions.setIsAllOrdersModalOpen(true)}
+              openDashboard={() => actions.setIsDashboardOpen(true)}
             />
 
             <SegmentSwitcher 
@@ -86,6 +88,11 @@ export default function App() {
               activeOrders={state.activeOrders}
               currentTime={state.currentTime}
               openOrderPayment={actions.openOrderPayment}
+            />
+
+            <DashboardModal
+              isOpen={state.isDashboardOpen}
+              setIsOpen={actions.setIsDashboardOpen}
             />
           </>
         )}

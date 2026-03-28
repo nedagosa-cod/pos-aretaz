@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, BarChart2 } from "lucide-react";
 import type { Order } from "../../types";
 
 type Props = {
@@ -7,9 +7,10 @@ type Props = {
   currentTime: number;
   openOrderPayment: (order: Order) => void;
   openAllOrders: () => void;
+  openDashboard: () => void;
 };
 
-export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment, openAllOrders }: Props) {
+export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment, openAllOrders, openDashboard }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,13 @@ export function TopOrdersBar({ activeOrders, currentTime, openOrderPayment, open
         <h1 className="text-white/90 font-black tracking-tighter text-lg leading-none">Aretaz</h1>
       </div>
       <div className="absolute top-2.5 right-4 flex gap-2">
+        <button 
+          onClick={openDashboard}
+          title="Dashboard de ventas"
+          className="w-7 h-7 flex items-center justify-center rounded bg-white/10 text-white/90 hover:bg-white/25 transition-all shadow-sm active:scale-90"
+        >
+          <BarChart2 className="w-4 h-4" />
+        </button>
         <button 
           onClick={openAllOrders}
           title="Ver todos los pedidos en lista grande"

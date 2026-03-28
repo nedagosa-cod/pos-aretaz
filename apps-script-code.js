@@ -53,37 +53,72 @@ function doPost(e) {
 }
 
 // ------------------------------------------------------------------------------
-// 2. ENVIAR EL CATÁLOGO DE PRODUCTOS A LA APP PARA LEER DE "PRODUCTOS"
+// 2. ENVIAR DATOS A LA APP (PRODUCTOS O VENTAS) SEGÚN EL PARÁMETRO ?action=
 // ------------------------------------------------------------------------------
 function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'productos';
+
+  if (action === 'ventas') {
+    return getVentas();
+  } else {
+    return getProductos();
+  }
+}
+
+// --- Lee el catálogo de la hoja "Productos" ---
+function getProductos() {
   try {
     var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('Productos');
-    
-    // Obtenemos todos los datos de la hoja "Productos"
     var data = sheet.getDataRange().getValues();
     var products = [];
-    
-    // Empezamos desde la segunda fila (i = 1), asumiendo que la fila 1 (índice 0) es de Encabezados
+
+    // Fila 0 es encabezado, empezamos desde i = 1
     for (var i = 1; i < data.length; i++) {
         var row = data[i];
-        
-        // Si no hay ID en la primera columna, saltamos la fila por precaución
-        if (!row[0] || row[0] === "") continue; 
-        
+        if (!row[0] || row[0] === "") continue;
         products.push({
             id: row[0].toString(),       // Columna A: ID
             name: row[1],                // Columna B: Nombre
             description: row[2],         // Columna C: Descripción
             price: Number(row[3]),       // Columna D: Precio
             category: row[4],            // Columna E: Categoría
-            segment: row[5] || "Arepas"  // Columna F: Segmento (Bebidas, Fritos, Arepas)
+            segment: row[5] || "Arepas"  // Columna F: Segmento
         });
     }
 
-    // Retornamos la lista de productos
     return ContentService.createTextOutput(JSON.stringify(products))
         .setMimeType(ContentService.MimeType.JSON);
-        
+
+  } catch(error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// --- Lee el historial de ventas de la hoja "Ventas" (para el Dashboard) ---
+function getVentas() {
+  try {
+    var sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName('Ventas');
+    var data = sheet.getDataRange().getValues();
+    var ventas = [];
+
+    // Fila 0 es encabezado, empezamos desde i = 1
+    for (var i = 1; i < data.length; i++) {
+        var row = data[i];
+        if (!row[0] || row[0] === "") continue;
+        ventas.push({
+            id: row[0].toString(),          // Columna A: ID
+            fecha: row[1].toString(),       // Columna B: Fecha y Hora
+            cliente: row[2] || "N/A",      // Columna C: Cliente
+            resumen: row[3] || "",         // Columna D: Resumen de productos
+            total: Number(row[4]),          // Columna E: Total pagado
+            metodoPago: row[5] || "Efectivo" // Columna F: Método de Pago
+        });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(ventas))
+        .setMimeType(ContentService.MimeType.JSON);
+
   } catch(error) {
     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
