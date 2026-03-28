@@ -13,4 +13,5 @@ export type Order = {
   total: number;
   createdAt: number;
   name?: string;
+  paymentMethod?: string; // 'Efectivo' o 'Transferencia'
 };

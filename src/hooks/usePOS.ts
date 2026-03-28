@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Arepa, Order } from "../types";
-import { arepasData } from "../data/products";
 
 export function usePOS() {
+  const [products, setProducts] = useState<Arepa[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
+
   const [currentSelection, setCurrentSelection] = useState<Arepa[]>([]);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
   const [selectedActiveOrder, setSelectedActiveOrder] = useState<Order | null>(null);
@@ -15,10 +18,40 @@ export function usePOS() {
   const [customerName, setCustomerName] = useState("");
   const [amountReceived, setAmountReceived] = useState("");
 
+  // Obtener productos desde Google Sheets
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoadingProducts(true);
+        const scriptUrl = import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL;
+        if (!scriptUrl) {
+          throw new Error("No URL configured");
+        }
+        const response = await fetch(scriptUrl);
+        const data = await response.json();
+        
+        if (data.status === "error") {
+          throw new Error(data.message || "Error al cargar");
+        }
+        
+        setProducts(data);
+        setProductsError(null);
+      } catch (err: any) {
+        console.error("Error obteniendo productos:", err);
+        setProductsError("Error al cargar el menú. Verifica la conexión o la configuración de Sheets.");
+        // Si quisieramos un fallback, lo pondríamos aquí
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   // Memoized filters to prevent unnecessary recalculations
   const segmentProducts = useMemo(() => {
-    return arepasData.filter((item) => (item.segment || "Arepas") === selectedSegment);
-  }, [selectedSegment]);
+    return products.filter((item) => (item.segment || "Arepas") === selectedSegment);
+  }, [products, selectedSegment]);
 
   const categories = useMemo(() => {
     return Array.from(new Set(segmentProducts.map(a => a.category)));
@@ -69,11 +102,29 @@ export function usePOS() {
     setAmountReceived("");
   };
 
-  const completeOrder = () => {
+  const completeOrder = (method: string = 'Efectivo') => {
     if (!selectedActiveOrder) return;
-    // Logica futura para marcar como entregado en DB
+    
+    // Guardamos la referencia de la orden y le adjuntamos el método de pago
+    const orderToSubmit = { ...selectedActiveOrder, paymentMethod: method };
+    
+    // Actualizamos la UI inmediatamente sin esperar por la red
     setActiveOrders(prev => prev.filter(o => o.id !== selectedActiveOrder.id));
     setSelectedActiveOrder(null);
+
+    // Enviamos los datos a Google Sheets de manera asíncrona
+    const scriptUrl = import.meta.env.VITE_GOOGLE_APPS_SCRIPT_URL;
+    if (scriptUrl) {
+      fetch(scriptUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(orderToSubmit),
+      }).catch(err => {
+        console.error("Error registrando venta en Google Sheets:", err);
+      });
+    }
   };
 
   const cancelOrder = () => {
@@ -98,7 +149,9 @@ export function usePOS() {
       amountReceived,
       segmentProducts,
       categories,
-      activeTotal
+      activeTotal,
+      isLoadingProducts,
+      productsError
     },
     actions: {
       setSelectedCategory,
